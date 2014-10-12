@@ -14,7 +14,8 @@
     "gulp-bower": "0.0.6",
     "gulp-coffee": "^2.2.0",
     "gulp-concat": "^2.4.1",
-    "gulp-vulcanize": "^1.1.0"
+    "gulp-vulcanize": "^1.1.0",
+    "run-sequence": "^1.0.1"
   },
   "scripts": {
     "prepublish": "gulp build"

@@ -41,7 +41,7 @@ class Router
 			new_route = window.location.hash
 
 			if new_route == @current_route
-				console.log("Staying at #{@current_route}")
+				# Stay at the current view
 				return
 
 			@params = merge(params, options)

@@ -4,7 +4,8 @@ var gulp = require('gulp'),
   del = require('del'),
   concat = require('gulp-concat'),
   coffee = require('gulp-coffee'),
-  vulcanize = require('gulp-vulcanize');
+  vulcanize = require('gulp-vulcanize'),
+  runSequence = require('run-sequence');
 
 // Clean
 gulp.task('clean', function() {
@@ -28,14 +29,19 @@ gulp.task('elements-html', function() {
     .pipe(gulp.dest('build/elements'));
 })
 
-// Elements
-gulp.task('elements', ['elements-coffee', 'elements-html'], function() {
+gulp.task('elements-vulcanize', function() {
   gulp.src('build/elements/polymer-mvc.html')
     .pipe(vulcanize({
-      dest: 'dist',
+      dest: 'build',
+      csp: true,
       inline: true
     }))
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest('build'));
+})
+
+// Elements
+gulp.task('elements', function(callback) {
+  runSequence('elements-html', 'elements-coffee', 'elements-vulcanize', callback);
 });
 
 // Coffeescripts
@@ -45,17 +51,20 @@ gulp.task('coffee', function() {
     .pipe(gulp.dest('build'));
 });
 
-// Concatenate
-gulp.task('concat', function() {
-  gulp.src('build/**/*.coffee')
+// Javascripts
+gulp.task('javascripts', function() {
+  gulp.src(['build/*.js', 'build/vendor/brow-route/dist/*.js'])
     .pipe(concat('polymer-mvc.js'))
     .pipe(gulp.dest('dist'));
-
-  gulp.src('build/*.html')
+})
+// Javascripts
+gulp.task('html', function() {
+  gulp.src('build/polymer-mvc.html')
     .pipe(gulp.dest('dist'));
 })
 
 // Build task
-gulp.task('build', ['clean'], function() {
-  gulp.start('elements')
+gulp.task('build',  function() {
+  runSequence(['coffee', 'bower', 'elements'],
+              ['javascripts', 'html'])
 });
