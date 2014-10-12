@@ -1,0 +1,29 @@
+{
+  "name": "polymer-mvc",
+  "version": "0.0.1",
+  "description": "A frontend MVC framework with Polymer",
+  "Author": "Goffert van Gool <goffert@phusion.nl>",
+  "license": "MIT",
+  "keywords": [
+    "polymer",
+    "mvc"
+  ],
+  "devDependencies": {
+    "del": "^0.1.3",
+    "gulp": "^3.8.8",
+    "gulp-bower": "0.0.6",
+    "gulp-coffee": "^2.2.0",
+    "gulp-concat": "^2.4.1",
+    "gulp-vulcanize": "^1.1.0"
+  },
+  "scripts": {
+    "prepublish": "gulp build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/phusion/polymer-mvc"
+  },
+  "bugs": {
+    "url": "https://github.com/phusion/polymer-mvc/issues"
+  }
+}
