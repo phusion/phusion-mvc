@@ -14,23 +14,22 @@ gulp.task('clean', function() {
 
 // Bower
 gulp.task('bower', function() {
-  bower('lib/vendor')
-    .pipe(gulp.dest('build/vendor/'));
+  bower('build/vendor/');
 });
 
 gulp.task('elements-coffee', function() {
-  gulp.src('lib/elements/*.coffee')
+  gulp.src('lib/elements/**/*.coffee')
     .pipe(coffee())
     .pipe(gulp.dest('build/elements'));
 })
 
 gulp.task('elements-html', function() {
-  gulp.src('lib/elements/*.html')
+  gulp.src('lib/elements/**/*.html')
     .pipe(gulp.dest('build/elements'));
 })
 
 gulp.task('elements-vulcanize', function() {
-  gulp.src('build/elements/polymer-mvc.html')
+  gulp.src('build/elements/phusion-mvc.html')
     .pipe(vulcanize({
       dest: 'build',
       csp: true,
@@ -59,7 +58,7 @@ gulp.task('javascripts', function() {
 })
 // Javascripts
 gulp.task('html', function() {
-  gulp.src('build/polymer-mvc.html')
+  gulp.src('build/phusion-mvc.html')
     .pipe(gulp.dest('dist'));
 })
 

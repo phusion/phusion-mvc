@@ -25,6 +25,9 @@ class Router
 
 		addEventListener('registerView', (e) => @registerView(e.detail))
 
+		# When all Polymer elements are ready, start the router.
+		addEventListener('polymer-ready', (e) => @init())
+
 	init: () ->
 		# If the current location hash is not set, default to the root path.
 		if document.location.hash == ''
@@ -35,7 +38,6 @@ class Router
 
 	# Register a new view. This is triggered by the 'registerView' event, emitted by all Views.
 	registerView: (view) ->
-		console.log('Registered ' + view.route)
 		@router.on view.route, (params, options) =>
 			new_view = view
 			new_route = window.location.hash

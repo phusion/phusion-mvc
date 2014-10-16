@@ -1,5 +1,5 @@
 {
-  "name": "polymer-mvc",
+  "name": "phusion-mvc",
   "version": "0.0.1",
   "description": "A frontend MVC framework with Polymer",
   "Author": "Goffert van Gool <goffert@phusion.nl>",
@@ -18,7 +18,7 @@
     "run-sequence": "^1.0.1"
   },
   "scripts": {
-    "prepublish": "gulp build"
+    "prepublish": "gulp build && gulp build && gulp build"
   },
   "repository": {
     "type": "git",
