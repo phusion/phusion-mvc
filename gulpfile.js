@@ -52,11 +52,12 @@ gulp.task('coffee', function() {
 
 // Javascripts
 gulp.task('javascripts', function() {
-  gulp.src(['build/*.js', 'build/vendor/brow-route/dist/*.js'])
-    .pipe(concat('polymer-mvc.js'))
+  gulp.src(['build/vendor/brow-route/dist/*.js', 'build/*.js'])
+    .pipe(concat('phusion-mvc.js'))
     .pipe(gulp.dest('dist'));
 })
-// Javascripts
+
+// html
 gulp.task('html', function() {
   gulp.src('build/phusion-mvc.html')
     .pipe(gulp.dest('dist'));
