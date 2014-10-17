@@ -20,16 +20,13 @@ Polymer 'phusion-view',
 			@loadData(clone(params))
 			@dataLoaders.forEach((e)-> e.loadData(clone(params)))
 
-			# When a user is logged in, set loaded to true to cache this view
-			App.user () => # TODO: App.user
-				@loaded = true
+			# Set loaded to true to cache this view
+			@loaded = true
 
 		@lastParams = params
 
-		if @requiresAuthentication()
-			App.user () => @show() # TODO: App.user
-		else
-			@show()
+		# Show the view
+		@show()
 
 	# Called when navigated from this view to another view
 	leave: (params, new_view) ->

@@ -425,111 +425,267 @@
 
 }).call(this);
 
-
 (function() {
-  Polymer('phusion-namespace', {
-    ready: function() {
-      return this.addEventListener('registerView', function(e) {
-        return this.registerView(e.detail);
-      });
-    },
-    registerView: function(view) {
-      return view.route = this.namespace + view.route;
+  var DataHandler;
+
+  DataHandler = (function() {
+    function DataHandler() {
+      this.processors = [];
+      this.stopped = false;
+      this.eventHandlers = {
+        data: [],
+        error: [],
+        timeout: [],
+        unauthorized: [],
+        stop: []
+      };
     }
-  });
 
-}).call(this);
-;
-(function() {
-  var clone, tap;
+    DataHandler.prototype.on = function(name, handler) {
+      if (this.eventHandlers[name] == null) {
+        throw "No such event: \"" + name + "\" on DataHandler";
+      }
+      return this.eventHandlers[name].push(handler);
+    };
 
-  clone = function(obj) {
-    return tap({}, function(stub) {
-      var key, value, _results;
+    DataHandler.prototype.processData = function(func) {
+      return this.processors.push(func);
+    };
+
+    DataHandler.prototype.data = function(data) {
+      var handler, processor, _i, _j, _len, _len1, _ref, _ref1, _results;
+      if (this.stopped) {
+        return;
+      }
+      _ref = this.processors;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        processor = _ref[_i];
+        data = processor(data);
+        if (data == null) {
+          return;
+        }
+      }
+      if ((data == null) || data.length === 0) {
+        this.error({
+          message: 'Empty data received',
+          data: data
+        });
+        return;
+      }
+      _ref1 = this.eventHandlers.data;
       _results = [];
-      for (key in obj) {
-        value = obj[key];
-        _results.push(stub[key] = value);
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        handler = _ref1[_j];
+        _results.push(handler(data));
       }
       return _results;
-    });
-  };
+    };
 
-  tap = function(obj, func) {
-    func(obj);
-    return obj;
-  };
+    DataHandler.prototype.error = function(data) {
+      var handler, _i, _len, _ref, _results;
+      if (this.stopped) {
+        return;
+      }
+      _ref = this.eventHandlers.error;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        handler = _ref[_i];
+        _results.push(handler(data));
+      }
+      return _results;
+    };
 
-  Polymer('phusion-view', {
-    ready: function() {
-      this.dataLoaders = [];
-      this.addEventListener('registerDataLoader', (function(_this) {
-        return function(e) {
-          return _this.dataLoaders.push(e.detail);
-        };
-      })(this));
-      return this.asyncFire('registerView', this);
-    },
-    visit: function(params) {
-      if (!this.loaded || JSON.stringify(params) !== JSON.stringify(this.lastParams)) {
-        this.loadData(clone(params));
-        this.dataLoaders.forEach(function(e) {
-          return e.loadData(clone(params));
-        });
-        App.user((function(_this) {
-          return function() {
-            return _this.loaded = true;
-          };
-        })(this));
+    DataHandler.prototype.timeout = function(data) {
+      var handler, _i, _len, _ref, _results;
+      if (this.stopped) {
+        return;
       }
-      this.lastParams = params;
-      if (this.requiresAuthentication()) {
-        return App.user((function(_this) {
-          return function() {
-            return _this.show();
-          };
-        })(this));
-      } else {
-        return this.show();
+      _ref = this.eventHandlers.timeout;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        handler = _ref[_i];
+        _results.push(handler());
       }
-    },
-    leave: function(params, new_view) {
-      this.hide(new_view);
-      return setTimeout((function(_this) {
-        return function() {
-          if (!_this.visible) {
-            _this.unloadData();
-            _this.dataLoaders.forEach(function(e) {
-              return typeof e.unloadData === "function" ? e.unloadData() : void 0;
-            });
-            return _this.loaded = false;
-          }
-        };
-      })(this), 30000);
-    },
-    show: function() {
-      this.visible = true;
-      this.classList.add('active');
-      return document.body.className = document.body.className.replace(/not-loaded/, '');
-    },
-    hide: function() {
-      this.visible = false;
-      return this.classList.remove('active');
-    },
-    loadData: function(params) {},
-    unloadData: function() {},
-    requiresAuthentication: function() {
-      return true;
-    }
-  });
+      return _results;
+    };
+
+    DataHandler.prototype.unauthorized = function() {
+      var handler, _i, _len, _ref, _results;
+      if (this.stopped) {
+        return;
+      }
+      _ref = this.eventHandlers.unauthorized;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        handler = _ref[_i];
+        _results.push(handler());
+      }
+      return _results;
+    };
+
+    DataHandler.prototype.stop = function() {
+      var handler, _i, _len, _ref, _results;
+      this.stopped = true;
+      _ref = this.eventHandlers.stop;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        handler = _ref[_i];
+        _results.push(handler());
+      }
+      return _results;
+    };
+
+    return DataHandler;
+
+  })();
+
+  window.DataHandler = DataHandler;
 
 }).call(this);
 
 (function() {
-  var Router, exports, merge, tap,
-    __slice = [].slice;
+  var Model;
 
-  exports = window;
+  Model = (function() {
+    Model.prototype.instanceMembers = {};
+
+    function Model(data) {
+      this.update(data);
+    }
+
+    Model.prototype.update = function(data) {
+      var i, key, klass, v, value, _results;
+      _results = [];
+      for (key in data) {
+        value = data[key];
+        if ((klass = this.instanceMembers[key]) != null) {
+          if (Array.isArray(value)) {
+            if (this[key] == null) {
+              this[key] = new Array(value.length);
+            }
+            _results.push((function() {
+              var _i, _len, _results1;
+              _results1 = [];
+              for (i = _i = 0, _len = value.length; _i < _len; i = ++_i) {
+                v = value[i];
+                if (this[key][i] != null) {
+                  _results1.push(this[key][i].update(v));
+                } else {
+                  _results1.push(this[key][i] = new window[klass](v));
+                }
+              }
+              return _results1;
+            }).call(this));
+          } else {
+            if (this[key] != null) {
+              _results.push(this[key].update(value));
+            } else {
+              _results.push(this[key] = new window[klass](value));
+            }
+          }
+        } else {
+          _results.push(this[key] = value);
+        }
+      }
+      return _results;
+    };
+
+    return Model;
+
+  })();
+
+  window.Model = Model;
+
+}).call(this);
+
+(function() {
+  var Api, buildQueryString, makeRequest;
+
+  buildQueryString = function(parameters) {
+    var key, qs, value;
+    qs = [];
+    for (key in parameters) {
+      value = parameters[key];
+      qs.push(encodeURIComponent(key) + "=" + encodeURIComponent(value));
+    }
+    return qs.join("&");
+  };
+
+  makeRequest = function(method, path, params) {
+    var dataHandler, timer, xhr;
+    xhr = new XMLHttpRequest();
+    if ((params != null) && method === 'GET') {
+      path += '?' + buildQueryString(params);
+    }
+    xhr.open(method, path, true);
+    xhr.withCredentials = true;
+    if ((params != null) && method !== 'GET') {
+      params = JSON.stringify(params);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(params);
+    } else {
+      xhr.send();
+    }
+    dataHandler = new DataHandler();
+    timer = setTimeout(((function(_this) {
+      return function() {
+        return dataHandler.timeout(path);
+      };
+    })(this)), 5000);
+    xhr.onreadystatechange = (function(_this) {
+      return function() {
+        var err, response;
+        if (xhr.readyState === 4) {
+          clearTimeout(timer);
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              response = JSON.parse(xhr.responseText);
+            } catch (_error) {
+              err = _error;
+              dataHandler.error({
+                message: 'Request ' + path + ' returned invalid JSON',
+                error: err
+              });
+            }
+            if (response != null) {
+              return dataHandler.data(response);
+            } else {
+              return dataHandler.error({
+                message: 'Request ' + path + ' returned no data'
+              });
+            }
+          } else {
+            if (xhr.status === 401) {
+              return dataHandler.unauthorized();
+            } else {
+              return dataHandler.error({
+                status: xhr.status,
+                message: 'Request ' + path + ' failed'
+              });
+            }
+          }
+        }
+      };
+    })(this);
+    return dataHandler;
+  };
+
+  Api = {
+    get: function(path, params) {
+      return makeRequest("GET", path, params);
+    },
+    put: function(path, body) {
+      return makeRequest("PUT", path, body);
+    }
+  };
+
+  window.Api = Api;
+
+}).call(this);
+
+(function() {
+  var Router, merge, tap,
+    __slice = [].slice;
 
   merge = function() {
     var objects;
@@ -618,6 +774,93 @@
 
   })();
 
-  exports.Router || (exports.Router = new Router());
+  window.Router || (window.Router = new Router());
+
+}).call(this);
+
+(function() {
+  Polymer('phusion-namespace', {
+    ready: function() {
+      return this.addEventListener('registerView', function(e) {
+        return this.registerView(e.detail);
+      });
+    },
+    registerView: function(view) {
+      return view.route = this.namespace + view.route;
+    }
+  });
+
+}).call(this);
+;
+(function() {
+  var clone, tap;
+
+  clone = function(obj) {
+    return tap({}, function(stub) {
+      var key, value, _results;
+      _results = [];
+      for (key in obj) {
+        value = obj[key];
+        _results.push(stub[key] = value);
+      }
+      return _results;
+    });
+  };
+
+  tap = function(obj, func) {
+    func(obj);
+    return obj;
+  };
+
+  Polymer('phusion-view', {
+    ready: function() {
+      this.dataLoaders = [];
+      this.addEventListener('registerDataLoader', (function(_this) {
+        return function(e) {
+          return _this.dataLoaders.push(e.detail);
+        };
+      })(this));
+      return this.asyncFire('registerView', this);
+    },
+    visit: function(params) {
+      if (!this.loaded || JSON.stringify(params) !== JSON.stringify(this.lastParams)) {
+        this.loadData(clone(params));
+        this.dataLoaders.forEach(function(e) {
+          return e.loadData(clone(params));
+        });
+        this.loaded = true;
+      }
+      this.lastParams = params;
+      return this.show();
+    },
+    leave: function(params, new_view) {
+      this.hide(new_view);
+      return setTimeout((function(_this) {
+        return function() {
+          if (!_this.visible) {
+            _this.unloadData();
+            _this.dataLoaders.forEach(function(e) {
+              return typeof e.unloadData === "function" ? e.unloadData() : void 0;
+            });
+            return _this.loaded = false;
+          }
+        };
+      })(this), 30000);
+    },
+    show: function() {
+      this.visible = true;
+      this.classList.add('active');
+      return document.body.className = document.body.className.replace(/not-loaded/, '');
+    },
+    hide: function() {
+      this.visible = false;
+      return this.classList.remove('active');
+    },
+    loadData: function(params) {},
+    unloadData: function() {},
+    requiresAuthentication: function() {
+      return true;
+    }
+  });
 
 }).call(this);

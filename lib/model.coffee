@@ -1,5 +1,3 @@
-exports = window
-
 class Model
 	instanceMembers: {}
 	
@@ -25,4 +23,4 @@ class Model
 			else
 				@[key] = value
 
-exports.Model = Model
+window.Model = Model

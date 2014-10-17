@@ -52,7 +52,14 @@ gulp.task('coffee', function() {
 
 // Javascripts
 gulp.task('javascripts', function() {
-  gulp.src(['build/vendor/brow-route/dist/*.js', 'build/*.js'])
+  gulp.src([
+    'build/vendor/brow-route/dist/*.js',
+    'build/dataHandler.js',
+    'build/model.js',
+    'build/api.js',
+    'build/router.js',
+    'build/phusion-mvc.js'
+    ])
     .pipe(concat('phusion-mvc.js'))
     .pipe(gulp.dest('dist'));
 })

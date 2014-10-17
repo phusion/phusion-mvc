@@ -1,5 +1,3 @@
-exports = window
-
 merge = (objects...) ->
 	if objects?.length > 0
 		tap({}, (stub) -> stub[key] = value for key, value of obj for obj in objects)
@@ -67,4 +65,4 @@ class Router
 	goBack: () ->
 		window.location.hash = @previous_route
 
-exports.Router ||= new Router()
+window.Router ||= new Router()
