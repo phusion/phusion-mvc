@@ -618,7 +618,6 @@
       path += '?' + buildQueryString(params);
     }
     xhr.open(method, path, true);
-    xhr.withCredentials = true;
     if ((params != null) && method !== 'GET') {
       params = JSON.stringify(params);
       xhr.setRequestHeader('Content-Type', 'application/json');

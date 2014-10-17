@@ -12,7 +12,6 @@ makeRequest = (method, path, params) ->
 		path += '?' + buildQueryString(params)
 
 	xhr.open(method, path, true)
-	xhr.withCredentials = true
 
 	if params? and method != 'GET'
 		params = JSON.stringify(params)
