@@ -4,19 +4,13 @@
 </polymer-element></div>
 <div hidden>
 <polymer-element name="phusion-view" attributes="route" class="view" assetpath="elements/view/">
-</polymer-element></div>
+</polymer-element>
 <style>
 	.view {
 		display: none;
-		flex-flow: row wrap;
-		align-items: flex-start;
-		align-content: flex-start;
-		padding-left: calc(50% - #{$application-width} / 2 + 25px);
-		padding-right: calc(50% - #{$application-width} / 2);
-		padding-top: 84px;
 	}
 	.view.active {
-		display: flex;
+		display: block;
 	}
-</style>
+</style></div>
 <script src="phusion-mvc.js"></script>
