@@ -1,5 +1,14 @@
 <script src="view.js"></script>
 <polymer-element
 	name="phusion-view"
-	attributes="route">
+	attributes="route"
+	class="view">
 </polymer-element>
+<style>
+	.view {
+		display: none;
+	}
+	.view.active {
+		display: block;
+	}
+</style>
